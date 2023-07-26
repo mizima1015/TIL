@@ -73,6 +73,7 @@ def index(request):
 ```
 
 이 내용을 넣고 저장한다. 
+여기서 (request)는 django에서 defalt로 들어가는 것이다.
 
 
 ### 페이지 확인
