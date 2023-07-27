@@ -17,7 +17,7 @@ urlpatterns = [
     path('', include('my_to_do_app.urls'))
 ```
 
-메인 홈페이지를 들어가면 어디로 갈지 지정해준 것
+메인 홈페이지를 들어가면 어디로 갈지 지정해준 것, '' 블랭크로 설정하면 메인 화면이라는 뜻이다.
 
 
 ## (2) [ToDoList > my_to_do_app > urls.py 생성]
