@@ -1,0 +1,129 @@
+
+-- Q1. 2015년 평균 기대수명 보다 1.15 배보다 높은 모든 데이터를 조회한다
+SELECT
+	*
+FROM POPULATIONS
+WHERE LIFE_EXPECTANCY > (
+SELECT 
+	AVG(LIFE_EXPECTANCY) LIFE_AVG
+FROM POPULATIONS
+WHERE YEAR = 2015
+) * 1.15
+;
+
+-- Q2 countries 테이블에서 Captial 컬럼과 매칭되는 cities 테이블의 필드를 조회한다
+-- urbanarea_pop 내림차순을 기준으로 정렬한다
+SELECT * FROM COUNTRIES;
+SELECT * FROM CITIES;
+
+SELECT
+	NAME
+	, COUNTRY_CODE
+	, URBANAREA_POP
+FROM CITIES
+WHERE NAME IN (SELECT CAPITAL FROM COUNTRIES)
+ORDER BY 3 DESC
+;
+
+SELECT
+	A.NAME
+	, A.COUNTRY_CODE
+	, A.URBANAREA_POP
+FROM CITIES A
+LEFT
+JOIN COUNTRIES B
+ON A.NAME = B.CAPITAL
+ORDER BY 3 DESC
+;
+
+-- Q3.countries테이블과 , cities 테이블을 서로 조인하여 국가별 도시 갯수를 계산한다 .
+-- INNER JOIN을 서브쿼리로 변환하기
+
+SELECT 
+	COUNTRY_NAME AS COUNTRY
+	, COUNT(*) AS CITIES_NUM
+FROM(
+SELECT *
+FROM CITIES A
+INNER JOIN COUNTRIES B
+ON A.COUNTRY_CODE = B.CODE
+) A
+GROUP BY 1
+ORDER BY 2 DESC, 1
+;
+
+
+SELECT * FROM COUNTRIES;
+
+EXPLAIN -- 정리 추천
+SELECT
+	A.COUNTRY_NAME AS COUNTRY
+	,(SELECT COUNT(*) 
+	  FROM CITIES B 
+	  WHERE A.CODE = B.COUNTRY_CODE) AS CITIES_NUM
+FROM COUNTRIES A
+ORDER BY CITIES_NUM DESC, COUNTRY;
+;
+
+-- Q4 2015년 , 각 대륙별 가장 높은 인플레이션을 기록한 국가와 인플레이션을 조회한다 .
+-- 테이블명 : countries, economies
+SELECT * FROM COUNTRIES;
+SELECT * FROM ECONOMIES;
+
+SELECT
+	COUNTRY_NAME
+	, CONTINENT
+	, INFLATION_RATE
+	,YEAR
+FROM COUNTRIES A
+INNER
+JOIN ECONOMIES B
+	ON A.CODE = B.CODE
+WHERE YEAR = 2015
+	AND INFLATION_RATE IN(
+SELECT 
+	CONTINENT
+	, MAX(INFLATION_RATE)
+FROM(
+SELECT
+	COUNTRY_NAME
+	, CONTINENT
+	, INFLATION_RATE
+	,YEAR
+FROM COUNTRIES A
+INNER
+JOIN ECONOMIES B
+	ON A.CODE = B.CODE
+WHERE YEAR = 2015
+) A
+GROUP BY 1
+)
+;
+
+SELECT 
+	COUNTRY_name
+	, continent
+	, inflation_rate
+	, year
+FROM countries A
+INNER
+JOIN economies B
+	ON A.code = B.code
+WHERE year = 2015
+	AND inflation_rate IN 
+	(SELECT 
+		MAX(inflation_rate)
+	FROM (
+		SELECT 
+			COUNTRY_NAME
+			, continent
+			, inflation_rate
+		FROM countries A
+		INNER
+		JOIN economies B
+			ON A.code = B.code
+		WHERE year = 2015
+		) A
+	GROUP BY continent)
+;
+
